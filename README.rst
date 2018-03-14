@@ -1,4 +1,4 @@
-Python client for `HashiCorp Nomad <http://www.nomadproject.io/>`_
+Alternative Python client for `HashiCorp Nomad <http://www.nomadproject.io/>`_
 ======================================================
 
 The python-nomad (https://github.com/jrxFive/python-nomad) module is great, but I wanted a python client for Nomad that would play nicely with Tornado.  Had had some experiance using python-consul (https://github.com/cablehead/python-consul) and was really impressed with what they had done to abstract the HTTP client out of the way so I forked their code base and replaced the Consul API code with the Nomad functions.
@@ -17,8 +17,8 @@ Example
 
     #!/bin/env python
     
-    from nomad import Nomad
-    from nomad.tornado import Nomad as tormad
+    from nomad_alt import Nomad
+    from nomad_alt.tornado import Nomad as tormad
     import os
     import pprint
     import json

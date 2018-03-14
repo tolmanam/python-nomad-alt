@@ -2,7 +2,7 @@ import collections
 
 import pytest
 
-import consul.base
+import nomad_alt.base
 
 
 Request = collections.namedtuple(
@@ -11,7 +11,7 @@ Request = collections.namedtuple(
 
 class HTTPClient(object):
     def __init__(self, host=None, port=None, scheme=None,
-                 verify=True, cert=None):
+                 verify=True, cert=None, token=None):
         pass
 
     def get(self, callback, path, params=None):
@@ -24,24 +24,14 @@ class HTTPClient(object):
         return Request('delete', path, params, None)
 
 
-class Consul(consul.base.Consul):
-    def connect(self, host, port, scheme, verify=True, cert=None):
-        return HTTPClient(host, port, scheme, verify=verify, cert=None)
+class Nomad(nomad_alt.base.Nomad):
+    def connect(self, host, port, scheme, verify=True, cert=None, token=None):
+        return HTTPClient(host, port, scheme, verify=verify, cert=None, token=token)
 
 
 def _should_support(c):
     return (
-        # kv
-        lambda **kw: c.kv.get('foo', **kw),
-        # catalog
-        c.catalog.nodes,
-        c.catalog.services,
-        lambda **kw: c.catalog.node('foo', **kw),
-        lambda **kw: c.catalog.service('foo', **kw),
-        # session
-        c.session.list,
-        lambda **kw: c.session.info('foo', **kw),
-        lambda **kw: c.session.node('foo', **kw),
+        c.jobs.list,
     )
 
 
@@ -50,31 +40,9 @@ class TestIndex(object):
     Tests read requests that should support blocking on an index
     """
     def test_index(self):
-        c = Consul()
+        c = Nomad()
         for r in _should_support(c):
             assert r().params == {}
-            assert r(index='5').params == {'index': '5'}
-
-
-class TestConsistency(object):
-    """
-    Tests read requests that should support consistency modes
-    """
-    def test_explict(self):
-        c = Consul()
-        for r in _should_support(c):
-            assert r().params == {}
-            assert r(consistency='default').params == {}
-            assert r(consistency='consistent').params == {'consistent': '1'}
-            assert r(consistency='stale').params == {'stale': '1'}
-
-    def test_implicit(self):
-        c = Consul(consistency='consistent')
-        for r in _should_support(c):
-            assert r().params == {'consistent': '1'}
-            assert r(consistency='default').params == {}
-            assert r(consistency='consistent').params == {'consistent': '1'}
-            assert r(consistency='stale').params == {'stale': '1'}
 
 
 class TestChecks(object):
@@ -116,7 +84,7 @@ class TestChecks(object):
         ])
     def test_http_check(self, url, interval, timeout, deregister, header,
                         want):
-        ch = consul.base.Check.http(url, interval, timeout=timeout,
+        ch = nomad_alt.base.Check.http(url, interval, timeout=timeout,
                                     deregister=deregister, header=header)
         assert ch == want
 
@@ -145,7 +113,7 @@ class TestChecks(object):
             }),
         ])
     def test_tcp_check(self, host, port, interval, timeout, deregister, want):
-        ch = consul.base.Check.tcp(host, port, interval, timeout=timeout,
+        ch = nomad_alt.base.Check.tcp(host, port, interval, timeout=timeout,
                                    deregister=deregister)
         assert ch == want
 
@@ -168,10 +136,10 @@ class TestChecks(object):
         ])
     def test_docker_check(self, container_id, shell, script, interval,
                           deregister, want):
-        ch = consul.base.Check.docker(container_id, shell, script, interval,
+        ch = nomad_alt.base.Check.docker(container_id, shell, script, interval,
                                       deregister=deregister)
         assert ch == want
 
     def test_ttl_check(self):
-        ch = consul.base.Check.ttl('1m')
+        ch = nomad_alt.base.Check.ttl('1m')
         assert ch == {'ttl': '1m'}
