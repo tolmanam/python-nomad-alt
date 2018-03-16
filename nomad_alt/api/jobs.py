@@ -1,4 +1,5 @@
 import nomad_alt
+import nomad_alt.exceptions
 from nomad_alt.base import CB
 from json import dumps, loads
 
@@ -13,7 +14,7 @@ class Jobs(object):
         try:
             j = self.read(item)
             return True
-        except nomad_alt.base.NomadException:
+        except nomad_alt.exceptions.NomadException:
             return False
 
     def __getitem__(self, item):
@@ -21,7 +22,7 @@ class Jobs(object):
         try:
             j = self.read(item)
             return j
-        except nomad_alt.base.NomadException:
+        except nomad_alt.exceptions.NomadException:
             raise KeyError
 
     def list(self, prefix=None):

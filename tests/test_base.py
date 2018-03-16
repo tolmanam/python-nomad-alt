@@ -2,7 +2,7 @@ import collections
 
 import pytest
 
-import nomad_alt.base
+from nomad_alt.base import Nomad as nomad_base, Check
 
 
 Request = collections.namedtuple(
@@ -24,7 +24,7 @@ class HTTPClient(object):
         return Request('delete', path, params, None)
 
 
-class Nomad(nomad_alt.base.Nomad):
+class Nomad(nomad_base):
     def connect(self, host, port, scheme, verify=True, cert=None, token=None):
         return HTTPClient(host, port, scheme, verify=verify, cert=None, token=token)
 
@@ -84,7 +84,7 @@ class TestChecks(object):
         ])
     def test_http_check(self, url, interval, timeout, deregister, header,
                         want):
-        ch = nomad_alt.base.Check.http(url, interval, timeout=timeout,
+        ch = Check.http(url, interval, timeout=timeout,
                                     deregister=deregister, header=header)
         assert ch == want
 
@@ -113,7 +113,7 @@ class TestChecks(object):
             }),
         ])
     def test_tcp_check(self, host, port, interval, timeout, deregister, want):
-        ch = nomad_alt.base.Check.tcp(host, port, interval, timeout=timeout,
+        ch = Check.tcp(host, port, interval, timeout=timeout,
                                    deregister=deregister)
         assert ch == want
 
@@ -136,10 +136,10 @@ class TestChecks(object):
         ])
     def test_docker_check(self, container_id, shell, script, interval,
                           deregister, want):
-        ch = nomad_alt.base.Check.docker(container_id, shell, script, interval,
+        ch = Check.docker(container_id, shell, script, interval,
                                       deregister=deregister)
         assert ch == want
 
     def test_ttl_check(self):
-        ch = nomad_alt.base.Check.ttl('1m')
+        ch = Check.ttl('1m')
         assert ch == {'ttl': '1m'}

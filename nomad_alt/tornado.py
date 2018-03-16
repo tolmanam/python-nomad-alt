@@ -3,12 +3,15 @@ from __future__ import absolute_import
 from tornado import gen
 from tornado import httpclient
 
+import nomad_alt
+import nomad_alt.base
+import nomad_alt.exceptions
 from nomad_alt import base
 
 __all__ = ['Nomad']
 
 
-class HTTPClient(base.HTTPClient):
+class HTTPClient(nomad_alt.base.HTTPClient):
     def __init__(self, *args, **kwargs):
         super(HTTPClient, self).__init__(*args, **kwargs)
         self.client = httpclient.AsyncHTTPClient()
@@ -23,7 +26,7 @@ class HTTPClient(base.HTTPClient):
             response = yield self.client.fetch(request)
         except httpclient.HTTPError as e:
             if e.code == 599:
-                raise base.Timeout
+                raise nomad_alt.exceptions.Timeout
             response = e.response
         raise gen.Return(callback(self.response(response)))
 

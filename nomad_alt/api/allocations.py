@@ -16,12 +16,12 @@ prefix (string: "")- Specifies a string to filter allocations on based on an ind
         if prefix is not None:
             params['prefix'] = prefix
         return self.agent.http.get(
-            CB.json(index=True, decode='Payload'),
+            CB.json(index=False, decode='Payload'),
             '/v1/allocations', params=params)
 
     def read(self, alloc_id):
         """
 """
         return self.agent.http.get(
-            CB.json(index=True),
+            CB.json(index=False),
             '/v1/allocation/%s' % alloc_id)
