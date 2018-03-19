@@ -17,22 +17,26 @@ def nomad_setup():
     yield n
     n.jobs.stop(common.EXAMPLE_JOB_NAME, purge=True)
 
-def test_allocation_list(nomad_setup):
-    res = nomad_setup.allocations.list()
+def test_evaluations_list(nomad_setup):
+    res = nomad_setup.evaluations.list()
     assert len(res) > 0
     assert common.EXAMPLE_JOB_NAME in [a['JobID'] for a in res]
 
-    alloc_id = res[0]['ID']
-    res = nomad_setup.allocations.list(alloc_id[:6])
+    eval_id = res[0]['ID']
+    res = nomad_setup.evaluations.list(eval_id[:6])
     assert len(res) > 0
 
     fake_alloc = "%s" % uuid.uuid4()
-    res = nomad_setup.allocations.list(fake_alloc[:6])
+    res = nomad_setup.evaluations.list(fake_alloc[:6])
     assert len(res) == 0
 
-    res = nomad_setup.allocations.read(alloc_id)
+    res = nomad_setup.evaluations.read(eval_id)
     assert 'JobID' in res
     assert 'ModifyIndex' in res
 
-# def test_allocation_read(nomad_setup):
-#     assert len(nomad_setup.allocations.read()) > 0
+    res = nomad_setup.evaluations.allocations(eval_id)
+    print res
+    assert len(res) > 0
+    for row in res:
+        assert 'JobID' in row
+        assert 'ModifyIndex' in row

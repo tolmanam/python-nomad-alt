@@ -16,14 +16,14 @@ class Evaluations(object):
         if prefix is not None:
             params['prefix'] = prefix
         return self.agent.http.get(
-            CB.json(index=True, decode='Payload'),
+            CB.json(index=False, decode='Payload'),
             '/v1/evaluations', params=params)
 
     def read(self, eval_id):
         """This endpoint reads information about a specific evaluation by ID.
 """
         return self.agent.http.get(
-            CB.json(index=True),
+            CB.json(index=False),
             '/v1/evaluation/%s' % eval_id)
 
     def allocations(self, eval_id):
@@ -31,5 +31,5 @@ class Evaluations(object):
 
 """
         return self.agent.http.get(
-            CB.json(index=True),
+            CB.json(index=False),
             '/v1/evaluation/%s/allocations' % eval_id)
