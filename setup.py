@@ -49,7 +49,7 @@ setup(
     url='git@github.com:tolmanam/python-nomad_alt.git',
     license='MIT',
     description=description,
-    long_description=open('README.rst').read() + '\n\n' +
+    long_description=open('README.md').read() + '\n\n' +
                      open('CHANGELOG.rst').read(),
     py_modules=py_modules,
     install_requires=requirements,
