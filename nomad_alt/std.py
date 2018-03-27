@@ -1,3 +1,5 @@
+import logging
+
 import requests
 
 from nomad_alt import base
@@ -34,6 +36,7 @@ class HTTPClient(HTTPClient_base):
 
     def post(self, callback, path, params=None, data=''):
         uri = self.uri(path, params)
+        logging.warn("Post to %s", uri)
         return callback(self.response(
             self.session.post(uri, data=data, headers={"X-Nomad-Token": self.token}, verify=self.verify,
                               cert=self.cert)))

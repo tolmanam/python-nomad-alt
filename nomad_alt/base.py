@@ -177,14 +177,15 @@ class Nomad(object):
         self.http = self.connect(host, port, scheme, verify, cert, self.token)
 
         from nomad_alt.api.jobs import Jobs
-        from nomad_alt.api.acl import ACL
+        from nomad_alt.api.acl import Tokens, Policies
         from nomad_alt.api.allocations import Allocations
         from nomad_alt.api.evaluations import Evaluations
         from nomad_alt.api.metrics import Metrics
         from nomad_alt.api.agent import Agent
 
         self.jobs = Jobs(self)
-        self.acl = ACL(self)
+        self.acl_tokens = Tokens(self)
+        self.acl_policies = Policies(self)
         self.allocations = Allocations(self)
         self.evaluations = Evaluations(self)
         self.metrics = Metrics(self)
@@ -280,6 +281,7 @@ class CB(object):
         def cb(response):
             CB.__status(response, allow_404=allow_404)
             data = None
+            logging.warn("Response: %s", response)
             if response.code in [200]:
                 data = json.loads(response.body)
 

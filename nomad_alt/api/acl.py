@@ -2,7 +2,66 @@ from json import dumps
 from nomad_alt.base import CB
 
 
-class ACL(object):
+class Policies(object):
+    """
+The /acl/policies and /acl/policy/ endpoints are used to manage ACL policies.
+For more details about ACLs, please see the ACL Guide.
+"""
+
+    def __init__(self, agent):
+        self.agent = agent
+
+    def list(self):
+        """
+        This endpoint lists all ACL policies. This lists the policies that have been replicated to the region, and may lag behind the authoritative region.
+
+        :return: json
+        """
+        return self.agent.http.get(
+            CB.json(index=False, allow_404=False),
+            '/v1/acl/policies')
+
+    def set(self, policy_name, rules, description=None):
+        """
+This endpoint creates or updates an ACL Policy. This request is always forwarded to the authoritative region.
+
+        :param: name (string: <required>) - Specifies the name of the policy. Creates the policy if the name does not exist, otherwise updates the existing policy.
+        :param: rules (string: <required>) - Specifies the Policy rules in HCL or JSON format.
+        :param: Description (string: <optional>) - Specifies a human readable description.
+
+        :return: json
+        """
+        data = {'Name': policy_name, 'Rules': rules}
+        if description is not None:
+            data['Description'] = description
+        data = dumps(data)
+        return self.agent.http.post(
+            CB.bool(), '/v1/acl/policy/%s' % policy_name, data=data)
+
+    def read(self, policy_name):
+        """
+This endpoint reads an ACL policy with the given name. This queries the policy that have been replicated to the region, and may lag behind the authoritative region.
+
+        :param: policy_name (string: <required>) - Specifies the policy name to read.
+
+        :return: json
+        """
+        return self.agent.http.get(
+            CB.json(index=False, allow_404=False),
+            '/v1/acl/policy/%s' % policy_name)
+
+    def delete(self, policy_name):
+        """
+This endpoint deletes the named ACL policy. This request is always forwarded to the authoritative region.
+
+        :param: policy_name (string: <required>) - Specifies the policy name to delete.
+
+        :return: boolean
+        """
+        return self.agent.http.delete(
+            CB.bool(), '/v1/acl/policy/%s' % policy_name)
+
+class Tokens(object):
     def __init__(self, agent):
         self.agent = agent
 
