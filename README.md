@@ -1,19 +1,18 @@
 # python-nomad-alt
 
-Alternative Python client for `HashiCorp Nomad <http://www.nomadproject.io/>`_
-======================================================
+Alternative Python client for [HashiCorp Nomad](http://www.nomadproject.io/)_
+
+====
 
 The python-nomad (https://github.com/jrxFive/python-nomad) module is great, but I wanted a python client for Nomad that would play nicely with Tornado.  Had had some experiance using python-consul (https://github.com/cablehead/python-consul) and was really impressed with what they had done to abstract the HTTP client out of the way so I forked their code base and replaced the Consul API code with the Nomad functions.
 
 ## TODO 
----
 - [ ] Code up the rest of the Nomad API (only wrote the few that I needed to start with)
 - [ ] Unit testing
 - [ ] Documentation
 - [ ] Talk to python-consul project manager and see if it makes sence to share a common code base
 
 ## Support for
----
 - [ ] ACL Policies
 - [X] ACL Tokens
 - [X] Agent
@@ -35,8 +34,7 @@ The python-nomad (https://github.com/jrxFive/python-nomad) module is great, but 
 - [ ] UI
 - [ ] Validate
 
-Example
----
+## Example
 ```python
 #!/bin/env python
 
