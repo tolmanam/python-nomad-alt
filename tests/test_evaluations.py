@@ -36,7 +36,7 @@ def test_evaluations_list(nomad_setup):
 
     res = nomad_setup.evaluations.allocations(eval_id)
     print res
-    assert len(res) > 0
+    assert isinstance(res, list)
     for row in res:
         assert 'JobID' in row
         assert 'ModifyIndex' in row

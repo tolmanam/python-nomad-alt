@@ -180,11 +180,15 @@ class Nomad(object):
         from nomad_alt.api.acl import ACL
         from nomad_alt.api.allocations import Allocations
         from nomad_alt.api.evaluations import Evaluations
+        from nomad_alt.api.metrics import Metrics
+        from nomad_alt.api.agent import Agent
 
         self.jobs = Jobs(self)
         self.acl = ACL(self)
         self.allocations = Allocations(self)
         self.evaluations = Evaluations(self)
+        self.metrics = Metrics(self)
+        self.agent = Agent(self)
 
     def connect(self, host, port, scheme, verify, cert, token):
         pass

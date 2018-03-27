@@ -10,6 +10,28 @@ TODO
 * [ ] Documentation
 * [ ] Talk to python-consul project manager and see if it makes sence to share a common code base
 
+Support for
+-----------
+* [ ] ACL Policies
+* [X] ACL Tokens
+* [X] Agent
+* [X] Allocations
+* [ ] Client
+* [ ] Deployments
+* [ ] Evaluations
+* [X] Jobs
+* [ ] Namespaces
+* [ ] Nodes
+* [X] Metrics
+* [ ] Operator
+* [ ] Quotas
+* [ ] Regions
+* [ ] Search
+* [ ] Sentinel Policies
+* [ ] Status
+* [ ] System
+* [ ] UI
+* [ ] Validate
 
 Example
 -------
