@@ -101,7 +101,6 @@ class Tokens(object):
             data['Name'] = name
         data['Global'] = make_global
         data = dumps(data)
-        print("Create Token: %s" % data)
         return self.agent.http.post(
             CB.json(index=False, allow_404=False),
             '/v1/acl/token', data=data)

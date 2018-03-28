@@ -19,17 +19,17 @@ The python-nomad (https://github.com/jrxFive/python-nomad) module is great, but 
 - [ ] Deployments
 - [ ] Evaluations
 - [X] Jobs
-- [ ] Namespaces
+- [ ] ~~Namespaces~~
 - [ ] Nodes
 - [X] Metrics
 - [ ] Operator
-- [ ] Quotas
+- [ ] ~~Quotas~~
 - [ ] Regions
 - [ ] Search
-- [ ] Sentinel Policies
-- [ ] Status
-- [ ] System
-- [ ] UI
+- [ ] ~~Sentinel Policies~~
+- [X] Status
+- [ ] ~~System~~
+- [ ] ~~UI~~
 - [ ] Validate
 
 ## Example

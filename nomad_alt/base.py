@@ -176,20 +176,36 @@ class Nomad(object):
         self.token = os.getenv('NOMAD_HTTP_TOKEN', token)
         self.http = self.connect(host, port, scheme, verify, cert, self.token)
 
-        from nomad_alt.api.jobs import Jobs
-        from nomad_alt.api.acl import Tokens, Policies
-        from nomad_alt.api.allocations import Allocations
-        from nomad_alt.api.evaluations import Evaluations
-        from nomad_alt.api.metrics import Metrics
+        from nomad_alt.api.acl import Tokens as ACL_Tokens, Policies as ACL_Policies
         from nomad_alt.api.agent import Agent
+        from nomad_alt.api.allocations import Allocations
+        from nomad_alt.api.client import Client
+        from nomad_alt.api.deployments import Deployments
+        from nomad_alt.api.evaluations import Evaluations
+        from nomad_alt.api.jobs import Jobs
+        from nomad_alt.api.nodes import Nodes
+        from nomad_alt.api.metrics import Metrics
+        from nomad_alt.api.status import Status
 
-        self.jobs = Jobs(self)
-        self.acl_tokens = Tokens(self)
-        self.acl_policies = Policies(self)
-        self.allocations = Allocations(self)
-        self.evaluations = Evaluations(self)
-        self.metrics = Metrics(self)
+        self.acl_policies = ACL_Policies(self)
+        self.acl_tokens = ACL_Tokens(self)
         self.agent = Agent(self)
+        self.allocations = Allocations(self)
+        self.client = Client(self)
+        self.deployments = Deployments(self)
+        # self.deployments = Deployments(self)
+        self.evaluations = Evaluations(self)
+        self.jobs = Jobs(self)
+        # self.namespaces = Namespaces(self)
+        self.nodes = Nodes(self)
+        self.metrics = Metrics(self)
+        # self.operator = Operator(self)
+        # self.quotas = Quotas(self)
+        # self.regions = Regions(self)
+        # self.search = Search(self)
+        # self.sentinel_policies = Sentinel_Policies(self)
+        self.status = Status(self)
+        # self.validate = Validate(self)
 
     def connect(self, host, port, scheme, verify, cert, token):
         pass
@@ -281,7 +297,6 @@ class CB(object):
         def cb(response):
             CB.__status(response, allow_404=allow_404)
             data = None
-            logging.warn("Response: %s", response)
             if response.code in [200]:
                 data = json.loads(response.body)
 

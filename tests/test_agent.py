@@ -19,7 +19,6 @@ def nomad_setup():
 
 def test_agent_members(nomad_setup):
     res = nomad_setup.agent.members()
-    print res
     assert res is not None
     assert 'ServerName' in res
     assert 'ServerRegion' in res
@@ -44,7 +43,6 @@ def test_agent_server(nomad_setup):
 
 def test_agent_state(nomad_setup):
     res = nomad_setup.agent.state()
-    print pformat(res)
     assert res is not None
     assert isinstance(res, dict)
     assert 'config' in res

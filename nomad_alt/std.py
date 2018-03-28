@@ -20,17 +20,20 @@ class HTTPClient(HTTPClient_base):
 
     def get(self, callback, path, params=None):
         uri = self.uri(path, params)
+        logging.warn("Get from %s", uri)
         return callback(self.response(
             self.session.get(uri, headers={"X-Nomad-Token": self.token}, verify=self.verify, cert=self.cert)))
 
     def put(self, callback, path, params=None, data=''):
         uri = self.uri(path, params)
+        logging.warn("Put to %s", uri)
         return callback(self.response(
             self.session.put(uri, data=data, verify=self.verify,
                              cert=self.cert, headers={"X-Nomad-Token": self.token})))
 
     def delete(self, callback, path, params=None):
         uri = self.uri(path, params)
+        logging.warn("delete from %s", uri)
         return callback(self.response(
             self.session.delete(uri, verify=self.verify, headers={"X-Nomad-Token": self.token}, cert=self.cert)))
 
