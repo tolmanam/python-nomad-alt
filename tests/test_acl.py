@@ -19,11 +19,13 @@ def nomad_setup():
         common.NOMAD_TOKEN = bootstrap_results['SecretID']
     yield n
 
+@pytest.mark.skip
 def test_acl_token_list(nomad_setup):
     if common.NOMAD_TOKEN:
         assert len(nomad_setup.acl_tokens.list()) > 0
         assert "Bootstrap Token" in [acl['Name'] for acl in nomad_setup.acl_tokens.list()]
 
+@pytest.mark.skip
 def test_new_acl_token(nomad_setup):
     if common.NOMAD_TOKEN:
         acl_name = "%s" % uuid.uuid4()
@@ -49,30 +51,31 @@ def test_new_acl_token(nomad_setup):
         res = nomad_setup.acl_tokens.delete(accessor_id)
         assert new_acl_name not in [acl['Name'] for acl in nomad_setup.acl_tokens.list()]
 
+@pytest.mark.skip
 def test_acl_policies(nomad_setup):
     # create a example policy
     acl_policy_name = "%s" % uuid.uuid4()
     rules = ""
     res = nomad_setup.acl_policies.set(acl_policy_name, rules, description="%s" % uuid.uuid4())
-    logging.warn("res:%s", pformat(res))
+    # logging.warn("res:%s", pformat(res))
     assert isinstance(res, bool)
     assert res
 
     # List policies
     res = nomad_setup.acl_policies.list()
-    logging.warn("res:%s", pformat(res))
+    # logging.warn("res:%s", pformat(res))
     assert isinstance(res, list)
     assert acl_policy_name in [policy['Name'] for policy in res]
 
     # retrieve example policy
     res = nomad_setup.acl_policies.read(acl_policy_name)
-    logging.warn("res:%s", pformat(res))
+    # logging.warn("res:%s", pformat(res))
     assert isinstance(res, dict)
     assert acl_policy_name == res['Name']
 
     # delete example policy
     res = nomad_setup.acl_policies.delete(acl_policy_name)
-    logging.warn("res:%s", pformat(res))
+    # logging.warn("res:%s", pformat(res))
     assert isinstance(res, bool)
     assert res
 

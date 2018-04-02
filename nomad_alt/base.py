@@ -133,6 +133,147 @@ Response = collections.namedtuple('Response', ['code', 'headers', 'body'])
 #
 # Conveniences to create consistent callback handlers for endpoints
 
+class CB(object):
+    @classmethod
+    def __status(klass, response, allow_404=True):
+        # status checking
+        if response.code >= 500 and response.code < 600:
+            raise NomadException("%d %s" % (response.code, response.body))
+        if response.code == 400:
+            raise BadRequest('%d %s' % (response.code, response.body))
+        if response.code == 401:
+            raise ACLDisabled(response.body)
+        if response.code == 403:
+            raise ACLPermissionDenied(response.body)
+        if response.code == 404 and not allow_404:
+            raise NotFound(response.body)
+
+    @classmethod
+    def bool(klass):
+        # returns True on successful response
+        def cb(response):
+            CB.__status(response)
+            return response.code == 200
+        return cb
+
+    @classmethod
+    def json(
+            klass,
+            map=None,
+            allow_404=True,
+            one=False,
+            decode=False,
+            is_id=False,
+            index=False):
+        """
+        *map* is a function to apply to the final result.
+
+        *allow_404* if set, None will be returned on 404, instead of raising
+        NotFound.
+
+        *index* if set, a tuple of index, data will be returned.
+
+        *one* returns only the first item of the list of items. empty lists are
+        coerced to None.
+
+        *decode* if specified this key will be base64 decoded.
+
+        *is_id* only the 'ID' field of the json object will be returned.
+        """
+
+        def cb(response):
+            CB.__status(response, allow_404=allow_404)
+            data = None
+            if response.code in [200]:
+                data = json.loads(response.body)
+
+                if decode:
+                    for item in data:
+                        if item.get(decode) is not None:
+                            item[decode] = base64.b64decode(item[decode])
+                if is_id:
+                    data = data['ID']
+                if one:
+                    if data == []:
+                        data = None
+                    if data is not None:
+                        data = data[0]
+                if map:
+                    data = map(data)
+            if index:
+                return response.headers['X-Nomad-Index'], data
+            return data
+        return cb
+
+    @classmethod
+    def raw(
+            klass,
+            map=None,
+            allow_404=True,
+            one=False,
+            decode=False,
+            is_id=False,
+            index=False):
+        """
+        *map* is a function to apply to the final result.
+
+        *allow_404* if set, None will be returned on 404, instead of raising
+        NotFound.
+
+        *index* if set, a tuple of index, data will be returned.
+
+        *one* returns only the first item of the list of items. empty lists are
+        coerced to None.
+
+        *decode* if specified this key will be base64 decoded.
+
+        *is_id* only the 'ID' field of the json object will be returned.
+        """
+
+        def cb(response):
+            CB.__status(response, allow_404=allow_404)
+            data = None
+            if response.code in [200]:
+                data = response.body
+            if index:
+                return response.headers['X-Nomad-Index'], data
+            return data
+
+        return cb
+
+
+class HTTPClient(six.with_metaclass(abc.ABCMeta, object)):
+    def __init__(self, host='127.0.0.1', port=8500, scheme='http',
+                 verify=True, cert=None, token=None):
+        self.host = host
+        self.port = port
+        self.scheme = scheme
+        self.verify = verify
+        self.base_uri = '%s://%s:%s' % (self.scheme, self.host, self.port)
+        self.cert = cert
+        self.token = token
+
+    def uri(self, path, params=None):
+        uri = self.base_uri + urllib.parse.quote(path, safe='/:')
+        if params:
+            uri = '%s?%s' % (uri, urllib.parse.urlencode(params))
+        return uri
+
+    @abc.abstractmethod
+    def get(self, callback, path, params=None):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def put(self, callback, path, params=None, data=''):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def delete(self, callback, path, params=None):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def post(self, callback, path, params=None, data=''):
+        raise NotImplementedError
 
 class Nomad(object):
     def __init__(
@@ -209,148 +350,3 @@ class Nomad(object):
 
     def connect(self, host, port, scheme, verify, cert, token):
         pass
-
-
-class HTTPClient(six.with_metaclass(abc.ABCMeta, object)):
-    def __init__(self, host='127.0.0.1', port=8500, scheme='http',
-                 verify=True, cert=None, token=None):
-        self.host = host
-        self.port = port
-        self.scheme = scheme
-        self.verify = verify
-        self.base_uri = '%s://%s:%s' % (self.scheme, self.host, self.port)
-        self.cert = cert
-        self.token = token
-
-    def uri(self, path, params=None):
-        uri = self.base_uri + urllib.parse.quote(path, safe='/:')
-        if params:
-            uri = '%s?%s' % (uri, urllib.parse.urlencode(params))
-        return uri
-
-    @abc.abstractmethod
-    def get(self, callback, path, params=None):
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def put(self, callback, path, params=None, data=''):
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def delete(self, callback, path, params=None):
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def post(self, callback, path, params=None, data=''):
-        raise NotImplementedError
-
-
-class CB(object):
-    @classmethod
-    def __status(klass, response, allow_404=True):
-        # status checking
-        if response.code >= 500 and response.code < 600:
-            raise NomadException("%d %s" % (response.code, response.body))
-        if response.code == 400:
-            raise BadRequest('%d %s' % (response.code, response.body))
-        if response.code == 401:
-            raise ACLDisabled(response.body)
-        if response.code == 403:
-            raise ACLPermissionDenied(response.body)
-        if response.code == 404 and not allow_404:
-            raise NotFound(response.body)
-
-    @classmethod
-    def bool(klass):
-        # returns True on successful response
-        def cb(response):
-            CB.__status(response)
-            return response.code == 200
-
-        return cb
-
-    @classmethod
-    def json(
-            klass,
-            map=None,
-            allow_404=True,
-            one=False,
-            decode=False,
-            is_id=False,
-            index=False):
-        """
-        *map* is a function to apply to the final result.
-
-        *allow_404* if set, None will be returned on 404, instead of raising
-        NotFound.
-
-        *index* if set, a tuple of index, data will be returned.
-
-        *one* returns only the first item of the list of items. empty lists are
-        coerced to None.
-
-        *decode* if specified this key will be base64 decoded.
-
-        *is_id* only the 'ID' field of the json object will be returned.
-        """
-
-        def cb(response):
-            CB.__status(response, allow_404=allow_404)
-            data = None
-            if response.code in [200]:
-                data = json.loads(response.body)
-
-                if decode:
-                    for item in data:
-                        if item.get(decode) is not None:
-                            item[decode] = base64.b64decode(item[decode])
-                if is_id:
-                    data = data['ID']
-                if one:
-                    if data == []:
-                        data = None
-                    if data is not None:
-                        data = data[0]
-                if map:
-                    data = map(data)
-            if index:
-                return response.headers['X-Nomad-Index'], data
-            return data
-
-        return cb
-
-    @classmethod
-    def raw(
-            klass,
-            map=None,
-            allow_404=True,
-            one=False,
-            decode=False,
-            is_id=False,
-            index=False):
-        """
-        *map* is a function to apply to the final result.
-
-        *allow_404* if set, None will be returned on 404, instead of raising
-        NotFound.
-
-        *index* if set, a tuple of index, data will be returned.
-
-        *one* returns only the first item of the list of items. empty lists are
-        coerced to None.
-
-        *decode* if specified this key will be base64 decoded.
-
-        *is_id* only the 'ID' field of the json object will be returned.
-        """
-
-        def cb(response):
-            CB.__status(response, allow_404=allow_404)
-            data = None
-            if response.code in [200]:
-                data = response.body
-            if index:
-                return response.headers['X-Nomad-Index'], data
-            return data
-
-        return cb

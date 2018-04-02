@@ -21,13 +21,13 @@ def nomad_setup():
 
 def test_leader(nomad_setup):
     res = nomad_setup.status.leader()
-    logging.warn("Leader: %s", pformat(res))
+    # logging.warn("Leader: %s", pformat(res))
     print("Leader: %s" % pformat(res))
     assert res is not None
 
 def test_peers(nomad_setup):
     res = nomad_setup.status.peers()
-    logging.warn("Peers: %s", pformat(res))
+    # logging.warn("Peers: %s", pformat(res))
     print("Peers: %s" % pformat(res))
     assert res is not None
     assert isinstance(res, list)

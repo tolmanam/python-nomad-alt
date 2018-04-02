@@ -33,6 +33,6 @@ def test_get_nodes(nomad_setup):
         node_allocations = nomad_setup.nodes.allocations(node['ID'])
         assert isinstance(node_allocations, list)
         node_eval = nomad_setup.nodes.evaluate(node['ID'])
-        logging.warn("Allocations:\n%s", pformat(node_eval))
+        # logging.warn("Allocations:\n%s", pformat(node_eval))
         if node_eval is not None:
             assert isinstance(node_eval, dict)

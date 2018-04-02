@@ -32,12 +32,13 @@ def test_stats(nomad_setup):
     a = nomad_setup.jobs.allocations(common.EXAMPLE_JOB_NAME)
     node_alloc = a[0]
 
-    logging.warn("Alloc:\n%s", node_alloc)
+    # logging.warn("Alloc:\n%s", node_alloc)
     node_details = nomad_setup.nodes.read(node_alloc['NodeID'])
     assert isinstance(node_details, dict)
     node_allocations = nomad_setup.nodes.allocations(node_alloc['NodeID'])
     for alloc in node_allocations:
-        logging.warn("Node Allocation:\n%s", pformat(alloc))
+        pass
+        # logging.warn("Node Allocation:\n%s", pformat(alloc))
         # alloc_stats = nomad_setup.client.allocation(alloc['ID'])
         # logging.warn("Allocations:\n%s", pformat(alloc_stats))
         # assert isinstance(alloc_stats, dict)

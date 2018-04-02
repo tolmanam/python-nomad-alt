@@ -22,27 +22,43 @@ class HTTPClient(HTTPClient_base):
         uri = self.uri(path, params)
         logging.warn("Get from %s", uri)
         return callback(self.response(
-            self.session.get(uri, headers={"X-Nomad-Token": self.token}, verify=self.verify, cert=self.cert)))
+            self.session.get(uri,
+                             headers={"X-Nomad-Token": self.token},
+                             verify=self.verify,
+                             cert=self.cert
+                             )))
 
     def put(self, callback, path, params=None, data=''):
         uri = self.uri(path, params)
         logging.warn("Put to %s", uri)
         return callback(self.response(
-            self.session.put(uri, data=data, verify=self.verify,
-                             cert=self.cert, headers={"X-Nomad-Token": self.token})))
+            self.session.put(uri,
+                             data=data,
+                             headers={"X-Nomad-Token": self.token},
+                             verify=self.verify,
+                             cert=self.cert
+                             )))
 
     def delete(self, callback, path, params=None):
         uri = self.uri(path, params)
         logging.warn("delete from %s", uri)
         return callback(self.response(
-            self.session.delete(uri, verify=self.verify, headers={"X-Nomad-Token": self.token}, cert=self.cert)))
+            self.session.delete(uri,
+                                headers={"X-Nomad-Token": self.token},
+                                verify=self.verify,
+                                cert=self.cert
+                                )))
 
     def post(self, callback, path, params=None, data=''):
         uri = self.uri(path, params)
         logging.warn("Post to %s", uri)
         return callback(self.response(
-            self.session.post(uri, data=data, headers={"X-Nomad-Token": self.token}, verify=self.verify,
-                              cert=self.cert)))
+            self.session.post(uri,
+                              data=data,
+                              headers={"X-Nomad-Token": self.token},
+                              verify=self.verify,
+                              cert=self.cert
+                              )))
 
 
 class Nomad(base.Nomad):
