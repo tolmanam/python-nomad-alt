@@ -12,7 +12,7 @@ import tests.common as common
 
 @pytest.fixture
 def nomad_setup():
-    n = Nomad(host=common.IP, port=common.NOMAD_PORT, verify=False, token=common.NOMAD_TOKEN)
+    n = Nomad(host=common.IP, port=common.NOMAD_PORT, ssl_verify=False, token=common.NOMAD_TOKEN)
     with open(common.EXAMPLE_JOB_JSON) as fh:
         n.jobs.create(json.loads(fh.read()))
     yield n

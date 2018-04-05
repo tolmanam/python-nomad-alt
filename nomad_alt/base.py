@@ -4,6 +4,8 @@ import collections
 import json
 import logging
 import os
+from urlparse import urlparse
+
 import six
 from six.moves import urllib
 
@@ -243,7 +245,7 @@ class CB(object):
 
 
 class HTTPClient(six.with_metaclass(abc.ABCMeta, object)):
-    def __init__(self, host='127.0.0.1', port=8500, scheme='http',
+    def __init__(self, host=None, port=None, scheme='http',
                  verify=True, cert=None, token=None):
         self.host = host
         self.port = port
@@ -278,44 +280,69 @@ class HTTPClient(six.with_metaclass(abc.ABCMeta, object)):
 class Nomad(object):
     def __init__(
             self,
-            host='127.0.0.1',
-            port=4646,
+            host=None,
+            port=None,
             token=None,
-            scheme='http',
-            verify=True,
-            cert=None):
+            scheme=None,
+            ssl_verify=True,
+            ssl_cert=None,
+            ssl_key=None,
+            ssl_ca=None
+    ):
         """
-        *token* is an optional `ACL token`_. If supplied it will be used by
+
+        All parameters are optional.
+
+        The order of precedence is: params, environment variables, then defaults
+
+        :param host: The address of the Nomad server (default 127.0.0.1)
+        :param port: The port for the Nomad server (default 8500)
+        :param scheme: The scheme using to communicate with the Nomad host (default to http)
+        :param ssl_verify: Whether to verify the SSL certificate for HTTPS requests (default to False)
+
+        :param token: ACL token. If supplied it will be used by
         default for all requests made with this client session. It's still
         possible to override this token by passing a token explicitly for a
         request.
 
-        *dc* is the datacenter that this agent will communicate with.
-        By default the datacenter of the host is used.
-
-        *verify* is whether to verify the SSL certificate for HTTPS requests
-
-        *cert* client side certificates for HTTPS requests
+        :param ssl_cert: Client side certificates for HTTPS requests
+        :param ssl_key: Unencrypted PEM encoded private key matching the client certificate
+        :param ssl_ca: path to a PEM encoded CA cert file to use to verify the Nomad server SSL certificate
         """
 
         # TODO: Status
 
-        if os.getenv('NOMAD_HTTP_ADDR'):
-            try:
-                host, port = os.getenv('NOMAD_HTTP_ADDR').split(':')
-            except ValueError:
-                raise NomadException('NOMAD_HTTP_ADDR (%s) invalid, '
-                                     'does not match <host>:<port>'
-                                     % os.getenv('NOMAD_HTTP_ADDR'))
-        use_ssl = os.getenv('NOMAD_HTTP_SSL')
-        if use_ssl is not None:
-            scheme = 'https' if use_ssl == 'true' else 'http'
-        if os.getenv('NOMAD_HTTP_SSL_VERIFY') is not None:
-            verify = os.getenv('NOMAD_HTTP_SSL_VERIFY') == 'true'
+        # The address of the Nomad server, including scheme, host, and port
+        for nomad_host in [host, os.getenv('NOMAD_ADDR'), '127.0.0.1']:
+            if nomad_host is not None:
+                url_details = urlparse(nomad_host)
+                address = "%s%s" % (url_details.netloc, url_details.path)
+                addr_list = address.split(':')
+                host = addr_list[0]
+                if port is None and len(addr_list) > 1:
+                    port = int(addr_list[0])
+                if scheme is None and url_details.scheme != "":
+                    scheme = url_details.scheme
+                break
+        port = port if port is not None else 8500
+        scheme = scheme if scheme else 'http'
 
-        self.scheme = scheme
-        self.token = os.getenv('NOMAD_HTTP_TOKEN', token)
-        self.http = self.connect(host, port, scheme, verify, cert, self.token)
+        # Verify TLS certificate
+        ssl_verify = ssl_verify if ssl_verify is not None else not os.getenv('NOMAD_SKIP_VERIFY', 'true').lower() in ['true', 'on']
+
+        # PEM encoded client certificate for TLS authentication to the Nomad server (Must also specify key)
+        ssl_cert = ssl_cert if ssl_cert is not None else os.getenv('NOMAD_CLIENT_CERT')
+
+        # unencrypted PEM encoded private key matching the client certificate
+        ssl_key = ssl_key if ssl_key is not None else os.getenv('NOMAD_CLIENT_KEY')
+
+        # Path to a PEM encoded CA cert file to use to verify the Nomad server SSL certificate
+        ssl_ca = ssl_ca if ssl_ca is not None else os.getenv('NOMAD_CACERT')
+
+        # The SecretID of an ACL token to use to authenticate API requests with
+        self.token = token if token is not None else os.getenv('NOMAD_TOKEN')
+
+        self.http = self.connect(host, port, scheme, ssl_verify, ssl_cert, self.token)
 
         from nomad_alt.api.acl import Tokens as ACL_Tokens, Policies as ACL_Policies
         from nomad_alt.api.agent import Agent

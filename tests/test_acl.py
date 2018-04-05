@@ -13,7 +13,7 @@ import tests.common as common
 
 @pytest.fixture
 def nomad_setup():
-    n = Nomad(host=common.IP, port=common.NOMAD_PORT, verify=False, token=common.NOMAD_TOKEN)
+    n = Nomad(host=common.IP, port=common.NOMAD_PORT, ssl_verify=False, token=common.NOMAD_TOKEN)
     if common.NOMAD_TOKEN is None:
         bootstrap_results = n.acl_tokens.bootstrap()
         common.NOMAD_TOKEN = bootstrap_results['SecretID']
