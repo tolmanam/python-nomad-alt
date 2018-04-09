@@ -17,6 +17,7 @@ requirements = [
 description = "Alternative Python client for HashiCorp Nomad (http://www.nomadproject.io/)"
 
 py_modules = [os.path.splitext(x)[0] for x in glob.glob('nomad_alt/*.py')]
+py_modules.extend([os.path.splitext(x)[0] for x in glob.glob('nomad_alt/api/*.py')])
 
 
 class Install(install):

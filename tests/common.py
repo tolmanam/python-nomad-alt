@@ -9,7 +9,7 @@ NOMAD_PORT = os.environ.get("NOMAD_PORT", 4646)
 
 # Security token
 # NOMAD_TOKEN = os.environ.get("NOMAD_TOKEN", None)
-NOMAD_TOKEN = os.environ.get("NOMAD_TOKEN", "56c0a3f1-212d-4be2-affc-0b816de83b94")
+NOMAD_TOKEN = os.environ.get("NOMAD_TOKEN", None)
 
 EXAMPLE_JOB_JSON = "example.json"
 EXAMPLE_JOB_NAME = "example"
