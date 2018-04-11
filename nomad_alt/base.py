@@ -296,7 +296,7 @@ class Nomad(object):
         The order of precedence is: params, environment variables, then defaults
 
         :param host: The address of the Nomad server (default 127.0.0.1)
-        :param port: The port for the Nomad server (default 8500)
+        :param port: The port for the Nomad server (default 4646)
         :param scheme: The scheme using to communicate with the Nomad host (default to http)
         :param ssl_verify: Whether to verify the SSL certificate for HTTPS requests (default to False)
 
@@ -324,7 +324,7 @@ class Nomad(object):
                 if scheme is None and url_details.scheme != "":
                     scheme = url_details.scheme
                 break
-        port = port if port is not None else 8500
+        port = port if port is not None else 4646
         scheme = scheme if scheme else 'http'
 
         # Verify TLS certificate
