@@ -4,12 +4,15 @@ import collections
 import json
 import logging
 import os
-from urlparse import urlparse
+try:
+    from urlparse import urlparse
+except ImportError:
+    from urllib.parse import urlparse
 
 import six
 from six.moves import urllib
 
-from nomad_alt import NomadException, BadRequest, ACLDisabled, ACLPermissionDenied, NotFound
+from nomad_alt.exceptions import NomadException, BadRequest, ACLDisabled, ACLPermissionDenied, NotFound
 
 log = logging.getLogger(__name__)
 

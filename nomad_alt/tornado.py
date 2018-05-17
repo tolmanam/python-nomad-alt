@@ -30,35 +30,55 @@ class HTTPClient(nomad_alt.base.HTTPClient):
             response = e.response
         raise gen.Return(callback(self.response(response)))
 
+    def __handle_request(self, callback, uri, kwargs):
+        request = httpclient.HTTPRequest(uri, **kwargs)
+        return self._request(callback, request)
+
     def get(self, callback, path, params=None):
         uri = self.uri(path, params)
-        request = httpclient.HTTPRequest(uri, method='GET',
-                                         headers={"X-Nomad-Token": self.token},
-                                         validate_cert=self.verify)
-        return self._request(callback, request)
+        kwargs = {
+            'method': 'GET',
+            'validate_cert': self.verify,
+        }
+        if self.token is not None:
+            kwargs['headers'] = {"X-Nomad-Token": self.token}
+
+        return self.__handle_request(callback, uri, kwargs)
 
     def put(self, callback, path, params=None, data=''):
         uri = self.uri(path, params)
-        request = httpclient.HTTPRequest(uri, method='PUT',
-                                         headers={"X-Nomad-Token": self.token},
-                                         body='' if data is None else data,
-                                         validate_cert=self.verify)
-        return self._request(callback, request)
+        kwargs = {
+            'method': 'PUT',
+            'validate_cert': self.verify,
+        }
+        if self.token is not None:
+            kwargs['headers'] = {"X-Nomad-Token": self.token}
+        kwargs['body'] = '' if data is None else data
+
+        return self.__handle_request(callback, uri, kwargs)
 
     def delete(self, callback, path, params=None):
         uri = self.uri(path, params)
-        request = httpclient.HTTPRequest(uri, method='DELETE',
-                                         headers={"X-Nomad-Token": self.token},
-                                         validate_cert=self.verify)
-        return self._request(callback, request)
+        kwargs = {
+            'method': 'DELETE',
+            'validate_cert': self.verify,
+        }
+        if self.token is not None:
+            kwargs['headers'] = {"X-Nomad-Token": self.token}
+
+        return self.__handle_request(callback, uri, kwargs)
 
     def post(self, callback, path, params=None, data=''):
         uri = self.uri(path, params)
-        request = httpclient.HTTPRequest(uri, method='POST', body=data,
-                                         headers={"X-Nomad-Token": self.token},
-                                         validate_cert=self.verify)
-        return self._request(callback, request)
+        kwargs = {
+            'method': 'POST',
+            'validate_cert': self.verify,
+            'body': data
+        }
+        if self.token is not None:
+            kwargs['headers'] = {"X-Nomad-Token": self.token}
 
+        return self.__handle_request(callback, uri, kwargs)
 
 class Nomad(base.Nomad):
     def connect(self, host, port, scheme, verify=True, cert=None, token=None):

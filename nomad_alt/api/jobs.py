@@ -184,11 +184,6 @@ all (bool: false) - Specifies whether the list of allocations should include all
         if prior is not None:
             params['EnforcePriorVersion'] = prior
 
-
-        print "___________________________________________________"
-        print params
-        print "___________________________________________________"
-
         return self.agent.http.post(
             CB.json(index=False, allow_404=False),
             '/v1/job/%s/revert' % job_id, data=dumps(params))
@@ -204,13 +199,10 @@ all (bool: false) - Specifies whether the list of allocations should include all
         :return application/json
 """
         params = kwargs
-        print params
         params['JobID'] = job_id
         params['Job'] = {'ID': job_id}
         params['JobVersion'] = version
         params['Stable'] = stable
-
-        print params
 
         return self.agent.http.post(
             CB.json(index=False, allow_404=False),
