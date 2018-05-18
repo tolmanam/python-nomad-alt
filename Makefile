@@ -1,11 +1,11 @@
 VERSION = $(shell git describe --tags --match '[0-9]*.[0-9]' --abbrev=0)
 REV = $(shell git rev-list $(VERSION)..HEAD | wc -l)
 
-display:
-	echo "Version $(VERSION) and Rev $(REV)"
+update_version:
+	echo "Version $(VERSION) and Rev $(REV)"; echo '__version__ = '\''$(VERSION).$(REV)'\''' > nomad_alt/nomad_version.py
 
-build: 
-	python setup.py sdist --formats=gztar,zip
+build: update_version
+	python setup.py sdist --formats=zip
 
 init:
 	pip install -r requirements.txt && pip install -r requirements-devel.txt

@@ -8,7 +8,7 @@ from setuptools.command.install import install
 from setuptools.command.test import test as TestCommand
 
 metadata = dict(
-    re.findall("__([a-z]+)__ = '([^']+)'", open('nomad_alt/__init__.py').read()))
+    re.findall("__([a-z]+)__ = '([^']+)'", open('nomad_alt/nomad_version.py').read()))
 
 requirements = [
     x.strip() for x
