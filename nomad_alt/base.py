@@ -243,20 +243,21 @@ class CB(object):
             if index:
                 return response.headers['X-Nomad-Index'], data
             return data
-
         return cb
 
 
 class HTTPClient(six.with_metaclass(abc.ABCMeta, object)):
     def __init__(self, host=None, port=None, scheme='http',
-                 verify=True, cert=None, token=None):
+                 verify=True, cert=None, token=None, key=None, ca=None):
         self.host = host
         self.port = port
         self.scheme = scheme
         self.verify = verify
         self.base_uri = '%s://%s:%s' % (self.scheme, self.host, self.port)
         self.cert = cert
+        self.key = key
         self.token = token
+        self.ca = ca
 
     def uri(self, path, params=None):
         uri = self.base_uri + urllib.parse.quote(path, safe='/:')
@@ -345,7 +346,7 @@ class Nomad(object):
         # The SecretID of an ACL token to use to authenticate API requests with
         self.token = token if token is not None else os.getenv('NOMAD_TOKEN')
 
-        self.http = self.connect(host, port, scheme, ssl_verify, ssl_cert, self.token)
+        self.http = self.connect(host, port, scheme, ssl_verify, ssl_cert, self.token, ssl_key, ssl_ca)
 
         from nomad_alt.api.acl import Tokens as ACL_Tokens, Policies as ACL_Policies
         from nomad_alt.api.agent import Agent
@@ -378,5 +379,5 @@ class Nomad(object):
         self.status = Status(self)
         # self.validate = Validate(self)
 
-    def connect(self, host, port, scheme, verify, cert, token):
+    def connect(self, host, port, scheme, verify, cert, token, key, ca):
         pass

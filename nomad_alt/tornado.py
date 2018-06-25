@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+import logging
 
 from tornado import gen
 from tornado import httpclient
@@ -10,8 +11,8 @@ from nomad_alt import base
 
 __all__ = ['Nomad']
 
-
 class HTTPClient(nomad_alt.base.HTTPClient):
+    logger = logging.getLogger('nomad_alt.tornado.HTTPClient')
     def __init__(self, *args, **kwargs):
         super(HTTPClient, self).__init__(*args, **kwargs)
         self.client = httpclient.AsyncHTTPClient()
@@ -31,6 +32,14 @@ class HTTPClient(nomad_alt.base.HTTPClient):
         raise gen.Return(callback(self.response(response)))
 
     def __handle_request(self, callback, uri, kwargs):
+        if not self.verify:
+            kwargs['validate_cert'] = False
+        else:
+            kwargs['validate_cert'] = True
+            kwargs['ca_certs'] = self.ca
+            kwargs['client_cert'] = self.cert
+            kwargs['client_key'] = self.key
+        self.logger.debug("kwargs: %s", kwargs)
         request = httpclient.HTTPRequest(uri, **kwargs)
         return self._request(callback, request)
 
@@ -38,7 +47,6 @@ class HTTPClient(nomad_alt.base.HTTPClient):
         uri = self.uri(path, params)
         kwargs = {
             'method': 'GET',
-            'validate_cert': self.verify,
         }
         if self.token is not None:
             kwargs['headers'] = {"X-Nomad-Token": self.token}
@@ -80,6 +88,10 @@ class HTTPClient(nomad_alt.base.HTTPClient):
 
         return self.__handle_request(callback, uri, kwargs)
 
+
 class Nomad(base.Nomad):
-    def connect(self, host, port, scheme, verify=True, cert=None, token=None):
-        return HTTPClient(host, port, scheme, verify=verify, cert=cert, token=token)
+
+    logger = logging.getLogger('nomad_alt.tornado.Nomad')
+
+    def connect(self, host, port, scheme, verify=True, cert=None, token=None, key=None, ca=None):
+        return HTTPClient(host, port, scheme, verify, cert, token=token, key=key, ca=ca)
