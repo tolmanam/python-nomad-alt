@@ -1,3 +1,4 @@
+from logging import getLogger
 import nomad_alt
 import nomad_alt.exceptions
 from nomad_alt.base import CB
@@ -5,6 +6,8 @@ from json import dumps, loads
 
 class Client(object):
     """"""
+
+    logger = getLogger("nomad_alt.api.client")
 
     def __init__(self, agent):
         self.agent = agent

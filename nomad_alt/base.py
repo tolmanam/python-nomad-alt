@@ -2,7 +2,7 @@ import abc
 import base64
 import collections
 import json
-import logging
+from logging import getLogger
 import os
 try:
     from urlparse import urlparse
@@ -14,7 +14,6 @@ from six.moves import urllib
 
 from nomad_alt.exceptions import NomadException, BadRequest, ACLDisabled, ACLPermissionDenied, NotFound
 
-log = logging.getLogger(__name__)
 
 
 #
@@ -24,6 +23,8 @@ class Check(object):
     """
     There are three different kinds of checks: script, http and ttl
     """
+
+    logger = getLogger(__name__)
 
     @classmethod
     def script(klass, script, interval):
@@ -108,7 +109,7 @@ class Check(object):
         if not script and not http and not ttl:
             return {}
 
-        log.warn(
+        self.logger.warning(
             'DEPRECATED: use nomad.Check.script/http/ttl to specify check')
 
         ret = {'check': {}}
@@ -247,6 +248,9 @@ class CB(object):
 
 
 class HTTPClient(six.with_metaclass(abc.ABCMeta, object)):
+
+    logger = getLogger("nomad_alt.HTTPClient")
+
     def __init__(self, host=None, port=None, scheme='http',
                  verify=True, cert=None, token=None, key=None, ca=None):
         self.host = host
@@ -258,6 +262,9 @@ class HTTPClient(six.with_metaclass(abc.ABCMeta, object)):
         self.key = key
         self.token = token
         self.ca = ca
+
+        # self.logger.warn("verify: %s", verify)
+
 
     def uri(self, path, params=None):
         uri = self.base_uri + urllib.parse.quote(path, safe='/:')
@@ -288,7 +295,7 @@ class Nomad(object):
             port=None,
             token=None,
             scheme=None,
-            ssl_verify=True,
+            ssl_verify=None,
             ssl_cert=None,
             ssl_key=None,
             ssl_ca=None

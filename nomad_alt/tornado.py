@@ -32,15 +32,12 @@ class HTTPClient(nomad_alt.base.HTTPClient):
         raise gen.Return(callback(self.response(response)))
 
     def __handle_request(self, callback, uri, kwargs):
-        if not self.verify:
-            kwargs['validate_cert'] = False
-        else:
-            kwargs['validate_cert'] = True
-            kwargs['ca_certs'] = self.ca
-            kwargs['client_cert'] = self.cert
-            kwargs['client_key'] = self.key
-        self.logger.debug("kwargs: %s", kwargs)
+        kwargs['validate_cert'] = self.verify
+        kwargs['ca_certs'] = self.ca
+        kwargs['client_cert'] = self.cert
+        kwargs['client_key'] = self.key
         request = httpclient.HTTPRequest(uri, **kwargs)
+        assert request.validate_cert == self.verify
         return self._request(callback, request)
 
     def get(self, callback, path, params=None):
